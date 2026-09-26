@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <UseWPF>true</UseWPF>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <AssemblyName>GogDisc.SelfTests</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="System.IO" />
+    <Using Include="System.Net.Http" />
+    <Compile Include="../../src/GogDisc.Launcher/OpticalDriveEjector.cs" Link="OpticalDriveEjector.cs" />
+    <Compile Include="../../src/GogDisc.Launcher/ControllerNavigation.cs" Link="ControllerNavigation.cs" />
+    <Compile Include="..\..\src\GogDisc.Packager\ArtworkKeyStore.cs" Link="ArtworkKeyStore.cs" />
+    <ProjectReference Include="..\..\src\GogDisc.Core\GogDisc.Core.csproj" />
+  </ItemGroup>
+</Project>

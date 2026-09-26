@@ -1,0 +1,16 @@
+**/bin/
+**/obj/
+.vs/
+.dotnet-cli/
+.nuget-packages/
+.ui-preview/
+artifacts/
+build/
+*.user
+*.suo
+*.pfx
+*.p12
+.env
+.env.*
+auth.json
+steamgriddb-key.dat

@@ -1,0 +1,546 @@
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="GogDisc.Packager.MainWindow" Title="GOG Physical Disc Creator" Width="1180" Height="820" MinWidth="900" MinHeight="640" Background="Black" Foreground="White" FontFamily="Segoe UI" FontSize="16" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#303030" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="8" />
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#555555" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Margin" Value="0,4" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton Foreground="White" Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}" BorderBrush="#999999" BorderThickness="1">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="30" />
+                                                </Grid.ColumnDefinitions>
+                                                <ContentPresenter Margin="8" Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}" />
+                                                <TextBlock Grid.Column="1" Text="▾" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White" />
+                                            </Grid>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False">
+                                <Border Background="#303030" BorderBrush="#999999" BorderThickness="1" MinWidth="{TemplateBinding ActualWidth}" MaxHeight="320">
+                                    <ScrollViewer>
+                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Padding" Value="6" />
+            <Setter Property="Background" Value="#3465A4" />
+            <Setter Property="BorderBrush" Value="#3465A4" />
+            <Setter Property="FontSize" Value="16" />
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="Background" Value="#3465A4" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="BorderBrush" Value="#3465A4" />
+            <Setter Property="Padding" Value="8" />
+            <Setter Property="Margin" Value="0,4" />
+            <Setter Property="FontSize" Value="16" />
+        </Style>
+        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="Padding" Value="12,5" />
+            <Setter Property="Background" Value="#FF8000" />
+            <Setter Property="Foreground" Value="Black" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="B" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="Opacity" Value="0.85" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="B" Property="Background" Value="#555555" />
+                                <Setter Property="Foreground" Value="#BBBBBB" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Margin" Value="0,10" />
+            <Setter Property="FontSize" Value="15" />
+        </Style>
+        <Style TargetType="Expander">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Margin" Value="0,14,0,4" />
+        </Style>
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Padding" Value="18,10" />
+            <Setter Property="FontSize" Value="17" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="TabBorder" BorderThickness="3" BorderBrush="Transparent" Padding="{TemplateBinding Padding}" Background="Black">
+                            <ContentPresenter ContentSource="Header" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="#999999" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="TabBorder" Property="BorderBrush" Value="#00A933" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Grid Margin="30,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Margin="12,0,0,22">
+            <TextBlock Text="GOG PHYSICAL DISC CREATOR" FontSize="36" TextWrapping="Wrap" />
+            <TextBlock Text="Create a physical install disc from your offline backup installers" Margin="0,12,0,0" FontSize="17" TextWrapping="Wrap" />
+        </StackPanel>
+        <TabControl x:Name="WizardTabs" Grid.Row="1" Background="Black" BorderThickness="0" SelectionChanged="WizardTabs_SelectionChanged">
+            <TabItem x:Name="MainSetupTab" Header="Main Setup">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="MainSetupContent" Margin="12,12,12,0">
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Disc Type" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <ComboBox x:Name="DeploymentTypeBox" SelectedIndex="0" SelectionChanged="DeploymentTypeBox_SelectionChanged">
+                                    <ComboBoxItem Content="Standard Game Disc (Single Game On One Or More Discs)" />
+                                    <ComboBoxItem Content="Game Collection Disc (Multiple Games On One Disc)" />
+                                    <ComboBoxItem Content="Game-Key Disc (download online GOG backup)" />
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" />
+                        </Grid>
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Title" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <TextBox x:Name="TitleBox" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" />
+                        </Grid>
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Version" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <TextBox x:Name="VersionBox" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" />
+                        </Grid>
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="MediaLabel" Text="Media" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <StackPanel x:Name="MediaPanel">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ComboBox x:Name="MediaBox" Width="280" SelectedIndex="8" SelectionChanged="MediaBox_SelectionChanged">
+                                            <ComboBoxItem Content="CD-R 74 min (650 MB)" />
+                                            <ComboBoxItem Content="CD-R 80 min (700 MB)" />
+                                            <ComboBoxItem Content="DVD-5, single layer (4.7 GB)" />
+                                            <ComboBoxItem Content="DVD-9, dual layer (8.5 GB)" />
+                                            <ComboBoxItem Content="BD-25 (25 GB)" />
+                                            <ComboBoxItem Content="BD-50 (50 GB)" />
+                                            <ComboBoxItem Content="BDXL-100 (100 GB)" />
+                                            <ComboBoxItem Content="BDXL-128 (128 GB)" />
+                                            <ComboBoxItem Content="Use my disc inventory" />
+                                            <ComboBoxItem Content="Custom capacity" />
+                                        </ComboBox>
+                                        <TextBox x:Name="CustomCapacityBox" Width="100" Text="50" Margin="10,4,0,4" Visibility="Collapsed" />
+                                        <TextBlock x:Name="CustomCapacityLabel" Text="GB" Margin="7,0" VerticalAlignment="Center" Foreground="#AEB7C7" Visibility="Collapsed" />
+                                    </StackPanel>
+                                    <StackPanel x:Name="MixedMediaPanel" Visibility="Visible" Margin="0,7,0,6">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock x:Name="InventorySummaryText" Foreground="#AEB7C7" VerticalAlignment="Center" />
+                                            <Button Content="Manage inventory…" Margin="12,0,0,0" Padding="10,3" Click="ManageInventory_Click" />
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" />
+                        </Grid>
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Background" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <TextBox x:Name="BackgroundBox" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <Button Content="Choose Artwork" Click="BrowseBackground_Click" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Cover Art" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <TextBox x:Name="CoverBox" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <Button Content="Choose Artwork" Click="BrowseCover_Click" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Disc Icon" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <TextBox x:Name="IconBox" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <Button Content="Choose Artwork" Click="BrowseIcon_Click" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="SteamGridDB API Key" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <PasswordBox x:Name="SavedArtworkKeyBox" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Save" Click="SaveArtworkKey_Click" />
+                                    <Button Content="Forget" Click="ForgetArtworkKey_Click" Background="#C9211E" Foreground="White" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock x:Name="ArtworkKeyStatus" Margin="165,0,0,0" Foreground="#BBBBBB" Text="Saved only for your Windows account; never included on a disc." />
+                        <Expander x:Name="KeyOptionsExpander" Header="Game key card settings" Visibility="Collapsed">
+                            <StackPanel>
+                                <Grid x:Name="KeyAccountPanel" Visibility="Collapsed" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="165" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="GOG account" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="1" x:Name="AccountStatusText" VerticalAlignment="Center" TextWrapping="Wrap" Foreground="#8F99AA" Margin="0,4" />
+                                    <Button Grid.Column="2" x:Name="AccountSignInButton" Content="Sign in to GOG…" Click="SignInGog_Click" />
+                                </Grid>
+                                <Grid x:Name="KeyIdentityPanel" Visibility="Collapsed" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="165" />
+                                        <ColumnDefinition Width="280" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Game title or GOG URL" VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="1" Grid.ColumnSpan="2" x:Name="GameLookupBox" TextChanged="GameLookupBox_TextChanged" />
+                                    <Button Grid.Column="3" Content="Find game" Click="FindGame_Click" />
+                                    <TextBlock Grid.Row="1" Text="Matched GOG product" VerticalAlignment="Center" />
+                                    <ComboBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" x:Name="ResolvedGameBox" SelectionChanged="ResolvedGameBox_SelectionChanged" />
+                                    <TextBlock Grid.Row="2" Text="Language" VerticalAlignment="Center" />
+                                    <TextBox Grid.Row="2" Grid.Column="1" x:Name="LanguageBox" Text="en" />
+                                    <TextBlock Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2" Margin="12,4,0,0" Foreground="#8F99AA" Text="Searches the games your GOG account owns; no credentials are written to media." />
+                                </Grid>
+                                <Grid x:Name="KeyDlcPanel" Visibility="Collapsed" Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="165" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Text="Add-ons you own" VerticalAlignment="Top" Margin="0,4,0,0" />
+                                    <StackPanel Grid.Column="1">
+                                        <ItemsControl x:Name="DlcList">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Margin="0,2,0,4">
+                                                        <CheckBox Content="{Binding Title}" IsChecked="{Binding Selected, Mode=TwoWay}" Foreground="White" Margin="0,8" FontSize="15" />
+                                                        <StackPanel Orientation="Horizontal" Margin="20,3,0,0" Visibility="{Binding ArtVisibility}">
+                                                            <Button Content="Disc art…" Padding="8,2" Click="BrowseDlcArt_Click" Tag="{Binding}" />
+                                                            <TextBlock Text="{Binding ArtSummary}" Foreground="#8F99AA" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock x:Name="DlcHint" Foreground="#8F99AA" TextWrapping="Wrap" Margin="2,2,0,0" Text="Select a game to list the add-ons your account owns." />
+                                    </StackPanel>
+                                    <TextBlock Grid.Row="1" Text="Disc layout" VerticalAlignment="Center" Margin="0,10,0,0" />
+                                    <StackPanel Grid.Row="1" Grid.Column="1" Margin="0,10,0,0">
+                                        <RadioButton x:Name="SingleDiscOption" GroupName="KeyLayout" IsChecked="True" Foreground="#C9D0DB" Content="Everything on one disc" Checked="KeyLayout_Changed" />
+                                        <RadioButton x:Name="MultiDiscOption" GroupName="KeyLayout" Foreground="#C9D0DB" Margin="0,3,0,0" Content="One disc per product (Disc 1 base game, then one per add-on)" Checked="KeyLayout_Changed" />
+                                        <TextBlock x:Name="KeyLayoutHint" Foreground="#8F99AA" TextWrapping="Wrap" Margin="2,3,0,0" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem x:Name="FirstGameTab" Header="Game 1">
+                <ScrollViewer x:Name="GameEditor" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="12,12,12,0">
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="SetupLabel" Text="Setup exe" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <TextBox x:Name="SetupBox" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <Button Content="Browse" Click="BrowseSetup_Click" x:Name="SetupBrowseButton" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock x:Name="ExtrasLabel" Text="Extras Folder" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <TextBox x:Name="ExtrasBox" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <Button Content="Browse" Click="BrowseExtras_Click" x:Name="ExtrasBrowseButton" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Patches" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <TextBox x:Name="PatchBox" AcceptsReturn="True" Height="58" VerticalScrollBarVisibility="Auto" TextChanged="InstallerLists_Changed" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <Button Content="Browse" Click="BrowsePatches_Click" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="165" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="175" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="DLCs" VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1">
+                                <TextBox x:Name="DlcBox" AcceptsReturn="True" Height="58" VerticalScrollBarVisibility="Auto" TextChanged="InstallerLists_Changed" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <Button Content="Browse" Click="BrowseDlcs_Click" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid x:Name="IndividualCoverPanel">
+                            <Grid Margin="0,3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="165" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="175" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Individual Cover Art" TextWrapping="Wrap" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBox x:Name="GameCoverBox" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <Button Content="Choose Artwork" Click="BrowseGameCover_Click" />
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                        <Expander Header="Installation order and game details">
+                            <StackPanel x:Name="AddonPanel">
+                                <TextBlock Text="Installers run from top to bottom after the base game. Reorder or remove paths below." TextWrapping="Wrap" Foreground="#BBBBBB" />
+                                <TextBox x:Name="AddonBox" AcceptsReturn="True" Height="90" VerticalScrollBarVisibility="Auto" TextChanged="Addons_Changed" />
+                                <StackPanel x:Name="GameIdentityPanel">
+                                    <Grid Margin="0,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="165" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="175" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Game title" VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="1">
+                                            <TextBox x:Name="GameTitleBox" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" />
+                                    </Grid>
+                                    <Grid Margin="0,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="165" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="175" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="Game version" VerticalAlignment="Center" />
+                                        <StackPanel Grid.Column="1">
+                                            <TextBox x:Name="GameVersionBox" Text="1.0" />
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" />
+                                    </Grid>
+                                </StackPanel>
+                                <Grid Margin="0,3">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="165" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="175" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="ProductTypeLabel" Text="Product type" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1">
+                                        <ComboBox x:Name="ProductTypeBox" SelectedIndex="0">
+                                            <ComboBoxItem Content="Base game" />
+                                            <ComboBoxItem Content="DLC" />
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" />
+                                </Grid>
+                                <CheckBox x:Name="IncludePatchesBox" Content="Preserve patch_* files as non-running archival extras" Foreground="White" Margin="0,8" FontSize="15" />
+                            </StackPanel>
+                        </Expander>
+                        <WrapPanel Margin="165,22,0,0">
+                            <Button x:Name="AddGameButton" Content="Add Game (For Game Collections)" Click="AddGame_Click" Background="#00A933" />
+                            <Button x:Name="RemoveGameButton" Content="Remove Game" Click="RemoveGame_Click" Background="#C9211E" Foreground="White" />
+                        </WrapPanel>
+                        <Expander x:Name="ImportCollectionExpander" Header="Import an existing collection folder">
+                            <Button Content="Import game folders…" Click="ImportCollection_Click" HorizontalAlignment="Left" />
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem x:Name="FinishTab" Header="Finish">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel x:Name="FinishContent" Margin="12,12,12,0">
+                        <StackPanel x:Name="FinishOptions">
+                            <Grid Margin="0,3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="165" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="175" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Output Folder" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBox x:Name="OutputBox" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <Button Content="Browse" Click="BrowseOutput_Click" />
+                                </StackPanel>
+                            </Grid>
+                            <Grid Margin="0,3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="165" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="175" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Launcher exe" VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1">
+                                    <TextBox x:Name="LauncherBox" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <Button Content="Browse" Click="BrowseLauncher_Click" />
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel Margin="165,20,0,0">
+                                <CheckBox x:Name="OpenWhenCompleteBox" Content="Open package folder when complete" IsChecked="True" Foreground="White" Margin="0,8" FontSize="15" />
+                                <CheckBox x:Name="ResetAfterBuildBox" Content="Clear backup inputs after build (keep output folder)" Foreground="White" Margin="0,8" FontSize="15" />
+                                <CheckBox x:Name="FillDiscBox" Content="TargetFill: pad remaining disc space (keeps the filesystem reserve)" Foreground="White" Margin="0,8" FontSize="15" />
+                            </StackPanel>
+                        </StackPanel>
+                        <Expander x:Name="ScanDetailsExpander" Header="Scan results and build progress">
+                            <StackPanel>
+                                <TextBlock x:Name="SummaryText" Text="Select a stock setup_*.exe, then scan the package." TextWrapping="Wrap" Foreground="#D4D9E2" />
+                                <Grid x:Name="ActivityPanel" Visibility="Collapsed">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <TextBox x:Name="LogBox" Height="88" IsReadOnly="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" FontFamily="Consolas" />
+                                    <ProgressBar Grid.Row="1" x:Name="BuildProgress" Height="16" Margin="0,12,0,0" Minimum="0" Maximum="100" Foreground="#E75C2A" Background="#323C4E" />
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+                        <WrapPanel Margin="0,20,0,0">
+                            <Button x:Name="ClearButton" Content="Clear All" Click="ClearAll_Click" Background="#C9211E" Foreground="White" />
+                            <Button x:Name="CancelButton" Content="Cancel" Click="Cancel_Click" IsEnabled="False" Background="#555555" />
+                            <Button x:Name="ScanButton" Content="Scan Package" Click="Scan_Click" />
+                            <Button x:Name="BuildButton" Content="Build" Background="#00A933" MinWidth="100" Click="Build_Click" IsEnabled="False" />
+                        </WrapPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+        <Grid Grid.Row="2" Margin="12,14,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusText" Text="Ready" Foreground="#BBBBBB" VerticalAlignment="Center" TextWrapping="Wrap" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button x:Name="BackButton" Content="BACK" Click="Back_Click" Background="#00A933" FontSize="22" MinWidth="115" />
+                <Button x:Name="NextButton" Content="NEXT" Click="Next_Click" Background="#00A933" FontSize="22" MinWidth="115" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <AssemblyName>GogDisc.Core</AssemblyName>
+    <RootNamespace>GogDisc.Core</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DefaultIcon.png" LogicalName="GogDisc.Core.DefaultIcon.png" />
+  </ItemGroup>
+</Project>

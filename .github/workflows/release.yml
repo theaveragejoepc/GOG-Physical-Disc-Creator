@@ -1,0 +1,48 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+      - name: Test and publish
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $version = $env:RELEASE_TAG.TrimStart('v')
+          if ($version -notmatch '^\d+\.\d+\.\d+(-[A-Za-z0-9.-]+)?$') { throw 'Invalid release version' }
+          dotnet run --project tests/GogDisc.SelfTests -c Release -p:Version=$version
+          if ($LASTEXITCODE -ne 0) { throw 'Tests failed' }
+          ./publish.ps1 -Version $version -OutputDirectory ./artifacts/release
+      - name: Package binaries and corresponding source
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $name = "GOG-Physical-Disc-Creator-$env:RELEASE_TAG"
+          Compress-Archive -Path ./artifacts/release/* -DestinationPath "./artifacts/$name-win-x64.zip"
+          git archive --format=zip --output="./artifacts/$name-source.zip" HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Source archive failed' }
+          Get-ChildItem ./artifacts/*.zip | ForEach-Object {
+            "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant())  $($_.Name)"
+          } | Set-Content ./artifacts/SHA256SUMS.txt -Encoding ascii
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          $notes = "./docs/releases/$env:RELEASE_TAG.md"
+          if (-not (Test-Path -LiteralPath $notes)) { throw "Missing release notes: $notes" }
+          $options = @('--verify-tag', '--notes-file', $notes, '--title', "GOG Physical Disc Creator $env:RELEASE_TAG")
+          if ($env:RELEASE_TAG.Contains('-')) { $options += '--prerelease' }
+          gh release create $env:RELEASE_TAG ./artifacts/*.zip ./artifacts/SHA256SUMS.txt @options
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

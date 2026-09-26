@@ -1,0 +1,56 @@
+<Window x:Class="GogDisc.Packager.ArtworkWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Choose artwork" Width="940" Height="740" MinWidth="720" MinHeight="540"
+        Background="#11151D" Foreground="White" WindowStartupLocation="CenterOwner">
+    <Grid Margin="24">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock x:Name="Heading" FontSize="24" FontWeight="SemiBold"/>
+            <TextBlock Text="Choose a file on your computer, or find community artwork on SteamGridDB." Foreground="#AEB7C7" Margin="0,6,0,12"/>
+        </StackPanel>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <TextBlock Text="SteamGridDB API key" VerticalAlignment="Center" Margin="0,0,12,0"/>
+            <PasswordBox x:Name="ApiKeyBox" Grid.Column="1" Background="#202631" Foreground="White" Padding="8" Margin="0,4"/>
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Button x:Name="SaveKeyButton" Content="Save key" Click="SaveKey_Click"/>
+                <Button x:Name="ForgetKeyButton" Content="Forget key" Click="ForgetKey_Click" Background="#465065"/>
+                <Button Content="Get API key" Click="GetKey_Click"/>
+            </StackPanel>
+        </Grid>
+        <StackPanel Grid.Row="2" Margin="0,8,0,12">
+            <DockPanel>
+                <Button x:Name="SearchButton" Content="Search games" Click="Search_Click" DockPanel.Dock="Right"/>
+                <TextBox x:Name="SearchBox" ToolTip="Game title" KeyDown="SearchBox_KeyDown"/>
+            </DockPanel>
+            <TextBlock Text="Matching games — select one:" Foreground="#AEB7C7" Margin="0,8,0,4"/>
+            <ListBox x:Name="GameBox" DisplayMemberPath="Name" SelectionChanged="Game_Changed" ToolTip="Choose the matching game"
+                     Height="62" Background="#202631" Foreground="White" BorderBrush="#394253"/>
+        </StackPanel>
+        <ListBox Grid.Row="3" x:Name="ArtworkList" Background="#181E29" Foreground="White" BorderBrush="#394253"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="Artwork_Changed">
+            <ListBox.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ListBox.ItemsPanel>
+            <ListBox.ItemTemplate><DataTemplate>
+                <StackPanel Width="185" Margin="6">
+                    <Image Source="{Binding Preview}" Width="185" Height="205" Stretch="Uniform"/>
+                    <TextBlock Text="{Binding Caption}" TextWrapping="Wrap" Margin="0,6,0,0" FontSize="12"/>
+                </StackPanel>
+            </DataTemplate></ListBox.ItemTemplate>
+        </ListBox>
+        <DockPanel Grid.Row="4" Margin="0,10,0,0">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button x:Name="PreviousButton" Content="Previous" Click="Previous_Click" IsEnabled="False"/>
+                <Button x:Name="NextButton" Content="Next page" Click="Next_Click" IsEnabled="False"/>
+            </StackPanel>
+            <TextBlock x:Name="Status" Text="Enter your key once and choose Save key, or search to save it automatically. It is encrypted for your Windows account and excluded from discs." Foreground="#AEB7C7" TextWrapping="Wrap" VerticalAlignment="Center"/>
+        </DockPanel>
+        <DockPanel Grid.Row="5" Margin="0,12,0,0">
+            <Button Content="Choose local file…" Click="Local_Click" DockPanel.Dock="Left"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Cancel" IsCancel="True" Background="#465065"/>
+                <Button x:Name="UseButton" Content="Use selected artwork" Click="Use_Click" IsEnabled="False"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>
