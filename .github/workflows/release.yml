@@ -44,5 +44,10 @@ jobs:
           if (-not (Test-Path -LiteralPath $notes)) { throw "Missing release notes: $notes" }
           $options = @('--verify-tag', '--notes-file', $notes, '--title', "GOG Physical Disc Creator $env:RELEASE_TAG")
           if ($env:RELEASE_TAG.Contains('-')) { $options += '--prerelease' }
+          gh release view $env:RELEASE_TAG --json tagName *> $null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output 'This release was already published; leaving its verified assets intact.'
+            exit 0
+          }
           gh release create $env:RELEASE_TAG ./artifacts/*.zip ./artifacts/SHA256SUMS.txt @options
           if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }
